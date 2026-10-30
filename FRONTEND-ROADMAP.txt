@@ -1,0 +1,27 @@
+IFT RESULT TRACKING SYSTEM — FRONTEND COMPLETE
+
+PUBLIC — NO LOGIN
+- Landing page
+- Public search by course code, title or lecturer
+- Level / semester / session filters
+- Responsive search result cards
+- Public course tracking timeline
+- Public information excludes phone, email, remarks and internal notes
+- Mobile responsive navigation and layout
+
+STAFF — LOGIN REQUIRED
+- Staff login page (Secretary/Admin/HOD)
+- Secretary/Admin dashboard
+- HOD view-only dashboard
+- Record received result form
+- Handover/movement logging form
+- Dean rejection/query option in movement form
+- Reports page with PDF/Excel UI buttons
+- Responsive tables
+- Activity/audit log screen
+- Email notification log screen
+- Printable acknowledgement slip with QR placeholder
+
+IMPORTANT
+This is the frontend prototype. Sample values are static JavaScript/HTML data.
+Next phase is PHP + MySQL + PHPMailer backend integration. No result documents are uploaded or stored.
