@@ -1,0 +1,11 @@
+<?php
+require_once __DIR__.'/includes/auth.php';
+if(current_user()) redirect(current_user()['role']==='hod'?'hod-dashboard.php':'admin-dashboard.php');
+$error=null;
+if($_SERVER['REQUEST_METHOD']==='POST'){
+    verify_csrf(); $identity=trim($_POST['identity']??''); $password=$_POST['password']??'';
+    $s=db()->prepare('SELECT * FROM users WHERE is_active=1 AND (username=? OR email=?) LIMIT 1'); $s->execute([$identity,$identity]); $u=$s->fetch();
+    if($u && password_verify($password,$u['password_hash'])){login_user($u); redirect($u['role']==='hod'?'hod-dashboard.php':'admin-dashboard.php');}
+    $error='Invalid username/email or password.';
+}
+?><!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Staff Login | IFT</title><link rel="icon" href="favicon.ico"><link rel="stylesheet" href="css/style.css"></head><body class="auth-page"><div class="auth-shell"><div class="auth-brand"><img src="assets/naits-logo.png"><div><strong>IFT Result Tracking</strong><span>Department of Information Technology</span></div></div><div class="auth-card"><div class="auth-title"><span class="kicker">STAFF PORTAL</span><h1>Sign in to continue</h1><p>For authorised Secretary/Admin and HOD accounts.</p></div><?php if($error):?><div class="danger-box"><?=e($error)?></div><?php endif;?><form method="post"><input type="hidden" name="csrf" value="<?=e(csrf_token())?>"><label>Email or Username<input type="text" name="identity" placeholder="Enter your email or username" required autofocus></label><label>Password<div class="password-field"><input type="password" name="password" id="password" placeholder="Enter your password" required><button type="button" id="togglePassword">Show</button></div></label><button class="primary-btn auth-submit" type="submit">Sign In</button><p class="auth-note">Public users do not need to log in.</p></form></div><a class="back-home" href="index.php">← Back to public tracking</a></div><script>document.getElementById('togglePassword').onclick=()=>{const p=document.getElementById('password');p.type=p.type==='password'?'text':'password';document.getElementById('togglePassword').textContent=p.type==='password'?'Show':'Hide'};</script></body></html>
