@@ -1,0 +1,58 @@
+name: ift-result-tracking
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_NAME: ${APP_NAME:-IFT Result Tracking System}
+      APP_URL: ${APP_URL:?Set APP_URL in .env}
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: ${DB_NAME:?Set DB_NAME in .env}
+      DB_USER: ${DB_USER:?Set DB_USER in .env}
+      DB_PASS: ${DB_PASS:?Set DB_PASS in .env}
+      IFT_SMTP_HOST: ${IFT_SMTP_HOST:-}
+      IFT_SMTP_USER: ${IFT_SMTP_USER:-}
+      IFT_SMTP_PASS: ${IFT_SMTP_PASS:-}
+      IFT_SMTP_PORT: ${IFT_SMTP_PORT:-587}
+      IFT_FROM_EMAIL: ${IFT_FROM_EMAIL:-}
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+      - outbound
+
+  db:
+    image: mariadb:11.4.13-noble
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:?Set DB_NAME in .env}
+      MARIADB_USER: ${DB_USER:?Set DB_USER in .env}
+      MARIADB_PASSWORD: ${DB_PASS:?Set DB_PASS in .env}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD in .env}
+    volumes:
+      - database_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/10-ift-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - backend
+
+networks:
+  backend:
+    internal: true
+  outbound: {}
+
+volumes:
+  database_data:

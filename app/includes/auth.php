@@ -1,6 +1,15 @@
 <?php
 require_once __DIR__ . '/functions.php';
-if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_name('ift_session');
+    session_set_cookie_params([
+        'httponly' => true,
+        'secure' => APP_ENV === 'production' && str_starts_with(strtolower(APP_URL), 'https://'),
+        'samesite' => 'Lax',
+        'path' => '/',
+    ]);
+    session_start();
+}
 function require_login(array $roles=[]): void {
     if (empty($_SESSION['user'])) redirect('login.php');
     if ($roles && !in_array($_SESSION['user']['role'], $roles, true)) { http_response_code(403); exit('Access denied.'); }
